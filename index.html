@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Bielik RAG – Prawnik AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex justify-center p-6">
+    <div class="w-full max-w-3xl bg-white p-8 rounded-2xl shadow-xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+            <span class="text-blue-600">Bielik</span> – Asystent Prawny RAG
+        </h1>
+
+        
+        <label class="block mb-2 font-semibold text-gray-700">Twoje pytanie:</label>
+        <textarea id="question" 
+                  class="w-full p-4 border rounded-xl focus:ring-2 focus:ring-blue-500 mb-4"
+                  rows="4"
+                  placeholder="Wpisz pytanie prawne oparte na orzeczeniach..."></textarea>
+
+        <!-- Przyciski -->
+        <button onclick="sendQuestion()"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition">
+            Wyślij do Bielika
+        </button>
+
+        <!-- Loader -->
+        <div id="loading" class="hidden text-center mt-4 text-gray-600">
+            ⏳ Przetwarzanie...
+        </div>
+
+        <!-- Wynik -->
+        <div id="answerContainer" class="mt-6 hidden">
+            <h2 class="text-xl font-bold text-gray-800 mb-3">Odpowiedź:</h2>
+            <div id="answer" class="p-4 bg-gray-50 border rounded-xl whitespace-pre-wrap"></div>
+        </div>
+    </div>
+
+<script>
+async function sendQuestion() {
+    const q = document.getElementById("question").value.trim();
+    if (!q) return;
+
+    document.getElementById("loading").classList.remove("hidden");
+    document.getElementById("answerContainer").classList.add("hidden");
+
+    try {
+        const res = await fetch("http://localhost:5000/ask", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ query: q })
+        });
+
+        const text = await res.text();   
+        document.getElementById("answer").textContent = text;
+        document.getElementById("answerContainer").classList.remove("hidden");
+    } catch (e) {
+        document.getElementById("answer").textContent = "❌ Błąd połączenia z backendem.";
+        document.getElementById("answerContainer").classList.remove("hidden");
+    }
+
+    document.getElementById("loading").classList.add("hidden");
+}
+
+</script>
+
+</body>
+</html>
